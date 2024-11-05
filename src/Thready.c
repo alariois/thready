@@ -9,6 +9,7 @@
 #include <string.h>
 
 #include "../Thready.h"
+// TODO:  remove debugf dependency
 // #include "Debugf/Debugf.h"
 // #include "Debugf/PreProc.h"
 
@@ -19,40 +20,41 @@ static uint32_t _threadCount = 0;
 
 static bool _threadyCancelUnsafe(ThreadyContext *context);
 
-uint32_t threadyCreate(ThreadyContext *context, thready_t thready, void *userData) {
-if (context->status == THREADY_STATUS_RUNNING) {
-  // dbgI(State, "Attempt to create existing thread blocked!");
-  return 0;
-}
+uint32_t threadyCreate(ThreadyContext *context, thready_t thready,
+                       void *userData) {
+  if (context->status == THREADY_STATUS_RUNNING) {
+    // dbgI(State, "Attempt to create existing thread blocked!");
+    return 0;
+  }
 
-if (context == NULL)
-  return 0;
-if (thready == NULL)
-  return 0;
+  if (context == NULL)
+    return 0;
+  if (thready == NULL)
+    return 0;
 
-if (_threadyLastElement != NULL) {
-  _threadyLastElement->next = context;
-}
+  if (_threadyLastElement != NULL) {
+    _threadyLastElement->next = context;
+  }
 
-if (_threadyFirstElement == NULL)
-  _threadyFirstElement = context;
-ThreadyOptions options = context->options;
-memset(context, 0, sizeof(ThreadyContext));
-context->options = options;
-context->id = _id++;
-context->options.thready = thready;
-context->options.userData = userData;
+  if (_threadyFirstElement == NULL)
+    _threadyFirstElement = context;
+  ThreadyOptions options = context->options;
+  memset(context, 0, sizeof(ThreadyContext));
+  context->options = options;
+  context->id = _id++;
+  context->options.thready = thready;
+  context->options.userData = userData;
 
-context->prev = _threadyLastElement;
-_threadyLastElement = context;
+  context->prev = _threadyLastElement;
+  _threadyLastElement = context;
 
-_threadCount++;
+  _threadCount++;
 
-// dbgV(State, "CREATE thread id=%2lu count=%2lu self = %10p prev = %10p next
-// = %10p first = %10p last = %10p", context->id, _threadCount, context,
-// context->prev, context->next, _threadyFirstElement, _threadyLastElement);
+  // dbgV(State, "CREATE thread id=%2lu count=%2lu self = %10p prev = %10p next
+  // = %10p first = %10p last = %10p", context->id, _threadCount, context,
+  // context->prev, context->next, _threadyFirstElement, _threadyLastElement);
 
-return context->id;
+  return context->id;
 }
 
 /*
